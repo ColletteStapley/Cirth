@@ -1,6 +1,6 @@
 # Overview
 
-{Important!  Do not say in this section that this is college assignment.  Talk about what you are trying to accomplish as a software engineer to further your learning.}
+This is a simple code to convert english characters into dwarvish. It takes in user input, pulls form a cloud database
 
 {Provide a description the software that you wrote and how it integrates with a Cloud Database.  Describe how to use your program.}
 
