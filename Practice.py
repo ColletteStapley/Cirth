@@ -48,7 +48,7 @@ def prompt_input():
 def convert_text(text):
     #Convert to all uppercase
     text = text.upper()
-    cirth = []
+    cirth = ["\u16EB"]
     for i in range(len(text)):
         # checks for a
         if text[i] == "A":
