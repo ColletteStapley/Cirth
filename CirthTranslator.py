@@ -10,7 +10,6 @@ db = firestore.client()
 # results = db.collection("Letters").document("blah").get()
 # print(results.to_dict())
 
-db.collection("Letters").document("H Mod").set({"Cirth": "\u16E7"})
 results = db.collection("Letters").document("A").get()
 results.to_dict()["Cirth"]
 
@@ -22,12 +21,13 @@ def print_key():
     print('l = \u16C5\tm = \u16D2\tn = \u16C9')
     print('o = \u16A3\tp = \u16B9\tqu = \u16A9')
     print('r = \u16CF\ts = \u16B2\tt = \u16DA')
-    print('u = \u16DF\tuu = \u16DD\tv = \u16B7')
+    print('u = \u16DF\tuu = \u16DD\tv = \u16D5')
     print('w = \u16C4\ty = \u16CB\tz = \u16E3')
 
-    print('space = \u16EB\tpunctuation = \u16EC\tSilent e = \u16BF')
+    print('\nand = \u16C7Modifying h = \u16E7')
     print('ou = \u16DE\tnd = \u16EF\tth = \u16D0')
-    print('and = \u16C7Modifying h = \u16E7\n')
+    print('oo = \u16A4\tng = \u16B7')
+    print('space = \u16EB\tpunctuation = \u16EC\tSilent e = \u16BF\n')
     print('Warning, this key is not 100% accurate to Cirth. The symbols used are from the Runic Unicode ', end = '')
     print('Library, which does not always have the perfect character. So the symbol that looked the closest is used.\n')
 
@@ -39,23 +39,33 @@ def display_example():
     print('\u16EB\u16B1\u16A2\u16C5\u16C1\u16C9\u16EB', end = '')
     print('\u16B2\u16A3\u16C9\u16EB\u16A3\u16B7\u16EB\u16E9\u16DF\u16EF\u16C1\u16C9\u16EB', end = '')
     print('\u16C5\u16A3\u16CF\u16A8\u16EB\u16A3\u16B7\u16EB\u16D2\u16A3\u16CF\u16C1\u16A2\u16EC\n')
+    cirth_library = db.collection("Letters").get()
+    # print(cirth_library, "\n")
 
 def prompt_input():
     print("\nWhat text would you like to convert?\n > ", end = "")
     text = input()
+    print("")
     return text
 
 def convert_text(text):
     #Convert to all uppercase
     text = text.upper()
     cirth = ["\u16EB"]
-    for i in range(len(text)):
+    # db.collection("Letters").document("OO")
+    i = 0
+    while i < len(text):
         # checks for a
         if text[i] == "A":
             #checks for the word and, making sure it's not part of a word and is on it's own
             if i == 0 or text[i-1] == " ":
                 if text[i+1] == "N" and text[i+2] == "D":
-                    if text[i+3] == " " or text[i+3] == "!" or text[i+3] == "." or text[i+3] == "?" or text[i+3] == ",":
+                    if len(text) - 1 == (i+2):
+                        results = db.collection("Letters").document("AND").get()
+                        cirth.append(results.to_dict()["Cirth"])
+                        i += 2
+                    elif [text[i+3] == " " or text[i+3] == "!" or text[i+3] == "." 
+                        or text[i+3] == "?" or text[i+3] == ","]:
                         results = db.collection("Letters").document("AND").get()
                         cirth.append(results.to_dict()["Cirth"])
                         i += 2
@@ -68,7 +78,10 @@ def convert_text(text):
             cirth.append(results.to_dict()["Cirth"])
         elif text[i] =="C":
             #checks for CH
-            if text[i+1] == "H":
+            if len(text) - 1 == (i+1):
+                results = db.collection("Letters").document("K").get()
+                cirth.append(results.to_dict()["Cirth"])
+            elif text[i+1] == "H":
                 results = db.collection("Letters").document("CH").get()
                 cirth.append(results.to_dict()["Cirth"])
             # checks if it makes a s sound
@@ -84,11 +97,14 @@ def convert_text(text):
             cirth.append(results.to_dict()["Cirth"])
         elif text[i] =="E":
             #if e is at the end of a word, it's silent
-            if text[i+1] == " ":
+            if len(text) - 1 == (i):
+                results = db.collection("Letters").document("Silent E").get()
+                cirth.append(results.to_dict()["Cirth"])
+            elif text[i+1] == " ":
                 results = db.collection("Letters").document("Silent E").get()
                 cirth.append(results.to_dict()["Cirth"])
             # seperate character for EE
-            elif text[1+1] == "E":
+            elif text[i+1] == "E":
                 results = db.collection("Letters").document("EE").get()
                 cirth.append(results.to_dict()["Cirth"])
                 i += 1
@@ -135,8 +151,15 @@ def convert_text(text):
             cirth.append(results.to_dict()["Cirth"])
         elif text[i] =="N":
             # ND Symbol
-            if text[i+1] == "D":
+            if len(text) - 1 == (i+1):
+                results = db.collection("Letters").document("N").get()
+                cirth.append(results.to_dict()["Cirth"])
+            elif text[i+1] == "D":
                 results = db.collection("Letters").document("ND").get()
+                cirth.append(results.to_dict()["Cirth"])
+                i += 1
+            elif text[i+1] == "G":
+                results = db.collection("Letters").document("NG").get()
                 cirth.append(results.to_dict()["Cirth"])
                 i += 1
             #defaults to N
@@ -145,7 +168,10 @@ def convert_text(text):
                 cirth.append(results.to_dict()["Cirth"])
         elif text[i] =="O":
             #OO? 
-            if text[i+1] == "O":
+            if len(text) - 1 == (i+1):
+                results = db.collection("Letters").document("O").get()
+                cirth.append(results.to_dict()["Cirth"])
+            elif text[i+1] == "O":
                 results = db.collection("Letters").document("OO").get()
                 cirth.append(results.to_dict()["Cirth"])
                 i += 1
@@ -163,7 +189,10 @@ def convert_text(text):
             cirth.append(results.to_dict()["Cirth"])
         elif text[i] =="Q":
             #JUST FOR RECOGNIZING IF THERES A U AFTER OR NOT
-            if text[i+1] == "U":
+            if len(text) - 1 == (i+1):
+                results = db.collection("Letters").document("QU").get()
+                cirth.append(results.to_dict()["Cirth"])
+            elif text[i+1] == "U":
                 i += 1
             else:
                 results = db.collection("Letters").document("QU").get()
@@ -176,7 +205,10 @@ def convert_text(text):
             cirth.append(results.to_dict()["Cirth"])
         elif text[i] =="T":
             # TH?
-            if text[i+1] == "H":
+            if len(text) - 1 == (i+1):
+                results = db.collection("Letters").document("T").get()
+                cirth.append(results.to_dict()["Cirth"])
+            elif text[i+1] == "H":
                 results = db.collection("Letters").document("TH").get()
                 cirth.append(results.to_dict()["Cirth"])
                 i += 1
@@ -186,7 +218,10 @@ def convert_text(text):
                 cirth.append(results.to_dict()["Cirth"])
         elif text[i] =="U":
             #UU?
-            if text[i+1] == "U":
+            if len(text) - 1 == (i+1):
+                results = db.collection("Letters").document("U").get()
+                cirth.append(results.to_dict()["Cirth"])
+            elif text[i+1] == "U":
                 results = db.collection("Letters").document("UU").get()
                 cirth.append(results.to_dict()["Cirth"])
                 i += 1
@@ -201,7 +236,7 @@ def convert_text(text):
             results = db.collection("Letters").document("V").get()
             cirth.append(results.to_dict()["Cirth"])
         elif text[i] == "X":
-            #X makes Z sound at the beginning of a word
+            #X makes Z sound at the beginning of a word ---UNLESS IT'S ON IT"S OWN--- FIX THAT
             if text[i-1] == " " or i == 0:
                 results = db.collection("Letters").document("Z").get()
                 cirth.append(results.to_dict()["Cirth"])
@@ -226,6 +261,9 @@ def convert_text(text):
         else:
             # if symbol doesn't exist, gives a filler symbol
             cirth.append("_")
+        i += 1
+    if cirth[len(cirth) - 1] != "\u16EC" or cirth[len(cirth) - 1] != "\u16EB":
+        cirth.append("\u16EC")
     return cirth
         
 
@@ -234,12 +272,34 @@ def print_text(finished_text):
         print(letter, end = "")
     print("\n")
 
-def menu():
+def add_character():
+    doc = input("What letter does the character represent? > ")
+    character = input("What is the unicode for the character > ")
+    new = {"Cirth" : character}
+    success = db.collection("Letters").document(doc).set(new)
+    if success:
+        print("Character added successfully!\n")
+    else:
+        print("Error: unable to add Character")
 
+def update_character():
+    doc = input("What letter character are you wanting to update? > ")
+    character = input("What is the unicode for the character > ")
+    print(character)
+    success = db.collection("Letters").document(doc).update({"Cirth" : character})
+    if success:
+        print("")
+
+def menu():
+    print("NOTE: Option 4 and 5 do not add the printable unicode to the database.")
+    print("\tOption 4 creates the document with the Cirth Unicode, and Option 5 saves the code too.")
+    print("\tAny characters added through those options will need to be manually updated later.")
     print("<Option 1> Display the Key.")
-    print("<Option 2> Convert Text.")
-    print("<Option 3> Display Example Text.")
-    print("<Option 4> Quit.\n")
+    print("<Option 2> Display Example Text.")
+    print("<Option 3> Convert Text.")
+    print("<Option 4> Add Character.")
+    print("<Option 5> Update Character.")
+    print("<Option 6> Quit.\n")
 
     print("<Type # here> ", end = "")
     option = input()
@@ -249,26 +309,22 @@ def interface(option):
     if option == "1":
         print_key()
     elif option == "2":
+        display_example()
+    elif option == "3":
         text = prompt_input()
         finished_text = convert_text(text)
         print_text(finished_text)
-    elif option == "3":
-        display_example()
     elif option == "4":
+        add_character()
+    elif option == "5":
+        update_character()
+    elif option == "6":
         return False
     else:
         print("None existant option Please try again.")
     return True
 
-# print('')
-# print('\u16EB\u16C4\u16BA\u16C5\u16B4\u16A3\u16D2\u16BF\u16EC')
-# print('')
-# print('\u16EB\u16D2\u16CB\u16EB\u16C9\u16A2\u16D2\u16BF\u16EB',end = '')
-# print('\u16C1\u16B2\u16EB\u16B4\u16A3\u16C5\u16C5\u16BA\u16DA\u16DA\u16BF\u16EC')
-# print('')
-# print('\u16EB\u16D0\u16BA\u16EB\u16A0\u16CF\u16BA\u16A2\u16DA\u16BA\u16B2\u16DA', end = '')
-# print('\u16EB\u16B2\u16E3\u16A3\u16C4\u16D2\u16A2\u16C9\u16EC')
-# print('')
+#
 play = True
 while play:
     option = menu()
