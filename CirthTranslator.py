@@ -10,11 +10,18 @@ db = firestore.client()
 # results = db.collection("Letters").document("blah").get()
 # print(results.to_dict())
 
-results = db.collection("Letters").document("A").get()
-results.to_dict()["Cirth"]
 
+# Creates a dictionary
+table = dict()
+results = db.collection("Letters").get()
+for result in results:
+    key = result.id
+    value = (result.to_dict())["Cirth"]
+    table[key] = value
+
+# Prints a key for all english letter's and their Cirth Counterparts
 def print_key():
-    print('a = \u16A2\tb = \u16B1\tch = \u16B3')
+    print('\na = \u16A2\tb = \u16B1\tch = \u16B3')
     print('d = \u16A8\te = \u16BA\tee = \u16BB')
     print('f = \u16E9\tg = \u16A0\th = \u16E6')
     print('i = \u16C1\tj = \u16AD\tk = \u16B4')
@@ -31,6 +38,7 @@ def print_key():
     print('Warning, this key is not 100% accurate to Cirth. The symbols used are from the Runic Unicode ', end = '')
     print('Library, which does not always have the perfect character. So the symbol that looked the closest is used.\n')
 
+# Simply displays a series of strings, first in english, then in Cirth/Dwarvish
 def display_example():
     print('\nbalin\nfundinul\nuzbad khazadduumu\nbalin son ov fundin lord ov moria\n')
     print('\u16EB\u16B1\u16A2\u16C5\u16C1\u16C9\u16EB')
@@ -42,12 +50,15 @@ def display_example():
     cirth_library = db.collection("Letters").get()
     # print(cirth_library, "\n")
 
+# Prompts specifically for the User input for conversion of a string
 def prompt_input():
     print("\nWhat text would you like to convert?\n > ", end = "")
     text = input()
     print("")
     return text
 
+
+# This function handles the long, complicated process of Converting a user-given string into dwarvish
 def convert_text(text):
     #Convert to all uppercase
     text = text.upper()
@@ -61,203 +72,165 @@ def convert_text(text):
             if i == 0 or text[i-1] == " ":
                 if text[i+1] == "N" and text[i+2] == "D":
                     if len(text) - 1 == (i+2):
-                        results = db.collection("Letters").document("AND").get()
-                        cirth.append(results.to_dict()["Cirth"])
+                        cirth.append(table["AND"])
                         i += 2
                     elif [text[i+3] == " " or text[i+3] == "!" or text[i+3] == "." 
                         or text[i+3] == "?" or text[i+3] == ","]:
-                        results = db.collection("Letters").document("AND").get()
-                        cirth.append(results.to_dict()["Cirth"])
+                        cirth.append(table["AND"])
                         i += 2
             # defaults to regular A
             else:
-                results = db.collection("Letters").document("A").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["A"])
         elif text[i] =="B":
-            results = db.collection("Letters").document("B").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["B"])
         elif text[i] =="C":
-            #checks for CH
+            # Checks if C is last in string
             if len(text) - 1 == (i+1):
-                results = db.collection("Letters").document("K").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["K"])
+            #checks for CH
             elif text[i+1] == "H":
-                results = db.collection("Letters").document("CH").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["CH"])
             # checks if it makes a s sound
             elif text[i+1] == "I" or text[i+1] == "E" or text[i+1] == "Y":
-                results = db.collection("Letters").document("S").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["S"])
             #defaults to k(no c in language)
             else: 
-                results = db.collection("Letters").document("K").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["K"])
         elif text[i] =="D":
-            results = db.collection("Letters").document("D").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["D"])
         elif text[i] =="E":
             #if e is at the end of a word, it's silent
             if len(text) - 1 == (i):
-                results = db.collection("Letters").document("Silent E").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["Silent E"])
             elif text[i+1] == " ":
-                results = db.collection("Letters").document("Silent E").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["Silent E"])
             # seperate character for EE
             elif text[i+1] == "E":
-                results = db.collection("Letters").document("EE").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["EE"])
                 i += 1
             #defaults to regular E
             else:
-                results = db.collection("Letters").document("E").get()
-                cirth.append(results.to_dict()["Cirth"])        
+                cirth.append(table["E"])        
         elif text[i] =="F":
-            results = db.collection("Letters").document("F").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["F"])
         elif text[i] =="G":
-            results = db.collection("Letters").document("G").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["G"])
         elif text[i] =="H":
-            # Modifier H only comes after consenants, so checks that it isn't after a vowel or space
+            # Chacks if the h is at the beginning of the string
             if i == 0:
-                results = db.collection("Letters").document("H").get()
-                cirth.append(results.to_dict()["Cirth"])
-                continue
-            if (text[i-1] == "B" or text[i-1] == "D" or text[i-1] == "F" or text[i-1] == "G" or text[i-1] == "J" 
-                or text[i-1] == "K" or text[i-1] == "L" or text[i-1] == "M" or text[i-1] == "N"or text[i-1] ==  "P"
-                or text[i-1] ==  "Q" or text[i-1] == "R" or text[i-1] == "S" or text[i-1] == "V" or text[i-1] == "W"
-                or text[i-1] == "X" or text[i-1] == "Z"):
-                results = db.collection("Letters").document("H Mod").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["H"])
+            # Modifier H only comes after consenants, so checks that it isn't after a vowel or space
+            elif (text[i-1] == "B" or text[i-1] == "D" or text[i-1] == "F" or text[i-1] == "G" or text[i-1] == "J" 
+                  or text[i-1] == "K" or text[i-1] == "L" or text[i-1] == "M" or text[i-1] == "N"or text[i-1] ==  "P"
+                  or text[i-1] ==  "Q" or text[i-1] == "R" or text[i-1] == "S" or text[i-1] == "V" or text[i-1] == "W"
+                  or text[i-1] == "X" or text[i-1] == "Z"):
+                cirth.append(table["H Mod"])
             # defaults to regular H
             else:
-                results = db.collection("Letters").document("H").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["H"])
         elif text[i] =="I":
-            results = db.collection("Letters").document("I").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["I"])
         elif text[i] =="J":
-            results = db.collection("Letters").document("J").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["J"])
         elif text[i] =="K":
-            results = db.collection("Letters").document("K").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["K"])
         elif text[i] =="L":
-            results = db.collection("Letters").document("L").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["L"])
         elif text[i] =="M":
-            results = db.collection("Letters").document("M").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["M"])
         elif text[i] =="N":
-            # ND Symbol
+            # Checks if N is at the end of a string
             if len(text) - 1 == (i+1):
-                results = db.collection("Letters").document("N").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["N"])
+            # ND Symbol    
             elif text[i+1] == "D":
-                results = db.collection("Letters").document("ND").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["ND"])
                 i += 1
+            # Checks for NG
             elif text[i+1] == "G":
-                results = db.collection("Letters").document("NG").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["NG"])
                 i += 1
-            #defaults to N
+            # defaults to N
             else: 
-                results = db.collection("Letters").document("N").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["N"])
         elif text[i] =="O":
-            #OO? 
+            # Checks if O is at the end
             if len(text) - 1 == (i+1):
-                results = db.collection("Letters").document("O").get()
-                cirth.append(results.to_dict()["Cirth"])
-            elif text[i+1] == "O":
-                results = db.collection("Letters").document("OO").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["O"])
+            # OO?    
+            elif text[i+1] == "OO":
+                cirth.append(table["OO"])
                 i += 1
             # OU?
             elif text[i+1] == "U":
-                results = db.collection("Letters").document("OU").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["OU"])
                 i += 1
             # Defaults to O
             else: 
-                results = db.collection("Letters").document("O").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["O"])
         elif text[i] =="P":
-            results = db.collection("Letters").document("P").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["P"])
         elif text[i] =="Q":
-            #JUST FOR RECOGNIZING IF THERES A U AFTER OR NOT
+            # Checks if the Q is at the end of the string
             if len(text) - 1 == (i+1):
-                results = db.collection("Letters").document("QU").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["QU"])
+            #JUST FOR RECOGNIZING IF THERES A U AFTER OR NOT TO SKIP FOR THE LOOP   
             elif text[i+1] == "U":
                 i += 1
             else:
-                results = db.collection("Letters").document("QU").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["QU"])
         elif text[i] =="R":
-            results = db.collection("Letters").document("R").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["R"])
         elif text[i] =="S":
-            results = db.collection("Letters").document("S").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["S"])
         elif text[i] =="T":
-            # TH?
-            if len(text) - 1 == (i+1):
-                results = db.collection("Letters").document("T").get()
-                cirth.append(results.to_dict()["Cirth"])
+            # Checks if T is at the end of the string
+            if len(text) == (i+1):
+                cirth.append(table["T"])
+            # TH?    
             elif text[i+1] == "H":
-                results = db.collection("Letters").document("TH").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["TH"])
                 i += 1
             # Defaults to T
             else:
-                results = db.collection("Letters").document("T").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["T"])
         elif text[i] =="U":
-            #UU?
+            # Checks if U is at the end of the string
             if len(text) - 1 == (i+1):
-                results = db.collection("Letters").document("U").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["U"])
+            # UU?    
             elif text[i+1] == "U":
-                results = db.collection("Letters").document("UU").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["UU"])
                 i += 1
             # defaults to U
             else:
-                results = db.collection("Letters").document("U").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["U"])
         elif text[i] =="V":
-            results = db.collection("Letters").document("V").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["V"])
         elif text[i] =="W":
-            results = db.collection("Letters").document("V").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["W"])
         elif text[i] == "X":
             #X makes Z sound at the beginning of a word ---UNLESS IT'S ON IT"S OWN--- FIX THAT
             if text[i-1] == " " or i == 0:
-                results = db.collection("Letters").document("Z").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["Z"])
             # Default: There is no X, so replaces with KS for similar sound
             else:
-                results = db.collection("Letters").document("K").get()
-                cirth.append(results.to_dict()["Cirth"])
-                results = db.collection("Letters").document("S").get()
-                cirth.append(results.to_dict()["Cirth"])
+                cirth.append(table["K"])
+                cirth.append(table["S"])
         elif text[i] =="Y":
-            results = db.collection("Letters").document("Y").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["Y"])
         elif text[i] =="Z":
-            results = db.collection("Letters").document("Z").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["Z"])
         elif text[i] ==" ":
-            results = db.collection("Letters").document("Space").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["Space"])
         elif text[i] =="." or text[i] =="," or text[i] =="!" or text[i] =="?":
-            results = db.collection("Letters").document("Punctuation").get()
-            cirth.append(results.to_dict()["Cirth"])
+            cirth.append(table["Punctuation"])
+            # Checks if punctuation is at the end, so no error happens when checking for a space
+            if len(text) - 1 == text[i]:
+                continue
+            # skips the space that often comes after the punctuation
+            elif text[i+ 1] == " ":
+                i += 1
         else:
             # if symbol doesn't exist, gives a filler symbol
             cirth.append("_")
@@ -266,30 +239,43 @@ def convert_text(text):
         cirth.append("\u16EC")
     return cirth
         
-
+# Prints converted Text
 def print_text(finished_text):
     for letter in finished_text:
         print(letter, end = "")
     print("\n")
 
+# Prompts user for a letter to add and the special unicode associated with it, then adds it to the database
 def add_character():
     doc = input("What letter does the character represent? > ")
     character = input("What is the unicode for the character > ")
     new = {"Cirth" : character}
     success = db.collection("Letters").document(doc).set(new)
     if success:
-        print("Character added successfully!\n")
+        results = db.collection("Letters").get()
+        for result in results:
+            key = result.id
+            value = (result.to_dict())["Cirth"]
+            table[key] = value
+        print(table[doc])
+        print("Character added successfully! Database Updated\n")
     else:
         print("Error: unable to add Character")
 
+# Prompts user for a character in the database to alter, it's new unicode, and then updates it.
 def update_character():
     doc = input("What letter character are you wanting to update? > ")
     character = input("What is the unicode for the character > ")
-    print(character)
-    success = db.collection("Letters").document(doc).update({"Cirth" : character})
+    success = db.collection("Letters").document(doc).update({"Cirth" : "\u16D5"})
     if success:
-        print("")
+        results = db.collection("Letters").get()
+        for result in results:
+            key = result.id
+            value = (result.to_dict())["Cirth"]
+            table[key] = value
+        print("Character updated successfully! Database Updated!\n")
 
+# Main menu, displays the options and get's the users input
 def menu():
     print("NOTE: Option 4 and 5 do not add the printable unicode to the database.")
     print("\tOption 4 creates the document with the Cirth Unicode, and Option 5 saves the code too.")
@@ -305,6 +291,7 @@ def menu():
     option = input()
     return option
 
+# Where the menu options are processed- calls correct series of functions for whichever option the user chose
 def interface(option):
     if option == "1":
         print_key()
@@ -324,7 +311,7 @@ def interface(option):
         print("None existant option Please try again.")
     return True
 
-#
+# Main, calls menu and interface until user quits.
 play = True
 while play:
     option = menu()
