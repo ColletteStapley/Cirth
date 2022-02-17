@@ -1,4 +1,6 @@
+from tkinter.tix import InputOnly
 import unicodedata
+from xml.sax.xmlreader import InputSource
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -226,8 +228,8 @@ def convert_text(text):
         elif text[i] =="." or text[i] =="," or text[i] =="!" or text[i] =="?":
             cirth.append(table["Punctuation"])
             # Checks if punctuation is at the end, so no error happens when checking for a space
-            if len(text) - 1 == text[i]:
-                continue
+            if len(text) - 1 == i:
+                break
             # skips the space that often comes after the punctuation
             elif text[i+ 1] == " ":
                 i += 1
@@ -235,9 +237,14 @@ def convert_text(text):
             # if symbol doesn't exist, gives a filler symbol
             cirth.append("_")
         i += 1
-    if cirth[len(cirth) - 1] != "\u16EC" or cirth[len(cirth) - 1] != "\u16EB":
+    punctuation = table["Punctuation"]
+    space = table["Space"]
+    end = cirth[len(cirth) - 1]
+    if end == punctuation or end == space:
+        return cirth
+    else:
         cirth.append("\u16EC")
-    return cirth
+        return cirth
         
 # Prints converted Text
 def print_text(finished_text):
@@ -248,10 +255,11 @@ def print_text(finished_text):
 # Prompts user for a letter to add and the special unicode associated with it, then adds it to the database
 def add_character():
     doc = input("What letter does the character represent? > ")
-    character = input("What is the unicode for the character > ")
+    character = ("What is the unicode for the character > ")
     new = {"Cirth" : character}
     success = db.collection("Letters").document(doc).set(new)
     if success:
+        # downloaded database needs to be updated
         results = db.collection("Letters").get()
         for result in results:
             key = result.id
@@ -266,14 +274,29 @@ def add_character():
 def update_character():
     doc = input("What letter character are you wanting to update? > ")
     character = input("What is the unicode for the character > ")
-    success = db.collection("Letters").document(doc).update({"Cirth" : "\u16D5"})
-    if success:
+    try :
+        db.collection("Letters").document(doc).update({"Cirth" : "\u16D5"})
+        # downloaded database needs to be updated
         results = db.collection("Letters").get()
         for result in results:
             key = result.id
             value = (result.to_dict())["Cirth"]
             table[key] = value
         print("Character updated successfully! Database Updated!\n")
+    except :
+        print("Error! Either Character Does not exist or some other Error was given!\n")
+
+def delete_character():
+    doc = input("What letter character are you wanting to delete? > ")
+    success = db.collection("Letters").document(doc).delete()
+    if success:
+        # downloaded database needs to be updated
+        results = db.collection("Letters").get()
+        for result in results:
+            key = result.id
+            value = (result.to_dict())["Cirth"]
+            table[key] = value
+        print("Character Deleted successfully! Database Updated!\n")
 
 # Main menu, displays the options and get's the users input
 def menu():
@@ -285,7 +308,8 @@ def menu():
     print("<Option 3> Convert Text.")
     print("<Option 4> Add Character.")
     print("<Option 5> Update Character.")
-    print("<Option 6> Quit.\n")
+    print("<Option 6> Delete Character.")
+    print("<Option 7> Quit.\n")
 
     print("<Type # here> ", end = "")
     option = input()
@@ -306,6 +330,8 @@ def interface(option):
     elif option == "5":
         update_character()
     elif option == "6":
+        delete_character()
+    elif option == "7":
         return False
     else:
         print("None existant option Please try again.")
