@@ -255,7 +255,7 @@ def print_text(finished_text):
 # Prompts user for a letter to add and the special unicode associated with it, then adds it to the database
 def add_character():
     doc = input("What letter does the character represent? > ")
-    character = ("What is the unicode for the character > ")
+    character = input("What is the unicode for the character > ")
     new = {"Cirth" : character}
     success = db.collection("Letters").document(doc).set(new)
     if success:
@@ -275,7 +275,7 @@ def update_character():
     doc = input("What letter character are you wanting to update? > ")
     character = input("What is the unicode for the character > ")
     try :
-        db.collection("Letters").document(doc).update({"Cirth" : "\u16D5"})
+        db.collection("Letters").document(doc).update({"Cirth" : character})
         # downloaded database needs to be updated
         results = db.collection("Letters").get()
         for result in results:
